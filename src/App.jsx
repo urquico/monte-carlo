@@ -20,16 +20,14 @@ function App() {
   const probability = 1 / 37;
 
   const startSimulation = () => {
-    setGreenCounter(0);
-    setBlackCounter(0);
     setupCDF();
 
     if (isDataProcessed) {
       let finalResultsData = [];
       let cash = initialMoney;
       let counter = 0;
-      let blackCount = blackCounter;
-      let greenCount = greenCounter;
+      let blackCount = 0;
+      let greenCount = 0;
 
       while (cash > 0) {
         let round = matchInRange();
