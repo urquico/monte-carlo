@@ -1,15 +1,15 @@
 import React from "react";
 import { Table } from "@mantine/core";
 
-function TableData({ data }) {
+function TableData({ data, blackBet, greenBet }) {
   return (
     <Table>
       <thead>
         <tr>
           <th>Round</th>
           <th>Spin</th>
-          <th>Black Bet</th>
-          <th>Green Bet</th>
+          <th>Black Bet ({blackBet})</th>
+          <th>Green Bet ({greenBet})</th>
           <th>Outcome</th>
           <th>Balance</th>
           <th>Final</th>

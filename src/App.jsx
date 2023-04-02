@@ -14,15 +14,22 @@ function App() {
   const [monteCarloData, setMonteCarloData] = useState([]);
   const [isDataProcessed, setIsDataProcessed] = useState(false);
   const [finalResults, setFinalResults] = useState([]);
+  const [greenCounter, setGreenCounter] = useState(0);
+  const [blackCounter, setBlackCounter] = useState(0);
+  const [totalRounds, setTotalRounds] = useState(0);
   const probability = 1 / 37;
 
   const startSimulation = () => {
+    setGreenCounter(0);
+    setBlackCounter(0);
     setupCDF();
 
     if (isDataProcessed) {
       let finalResultsData = [];
       let cash = initialMoney;
       let counter = 0;
+      let blackCount = blackCounter;
+      let greenCount = greenCounter;
 
       while (cash > 0) {
         let round = matchInRange();
@@ -35,15 +42,22 @@ function App() {
         if (round?.color === "black") {
           outCome += blackBet;
           outCome -= greenBet;
+          blackCount++;
           bet100 = true;
         }
         if (round?.color === "green") {
           outCome += greenBet;
           outCome -= blackBet;
+          greenCount++;
           bet10 = true;
         }
+        if (round?.color === "red") {
+          outCome -= blackBet;
+          outCome -= greenBet;
+        }
 
-        cash -= outCome;
+        cash = balance + outCome;
+        console.log(outCome, balance, cash);
 
         counter++;
 
@@ -52,14 +66,18 @@ function App() {
           spin: round?.name,
           bet100: bet100,
           bet10: bet10,
-          outCome: -outCome,
+          outCome: outCome,
           balance: balance,
           final: cash,
         });
+        balance += outCome;
       }
 
       setFinalResults(finalResultsData);
       setTime(counter * timePerRound);
+      setBlackCounter(blackCount);
+      setGreenCounter(greenCount);
+      setTotalRounds(counter);
     }
 
     setIsDataProcessed(true);
@@ -110,13 +128,10 @@ function App() {
 
   const matchInRange = () => {
     const randomNumber = Math.random();
-    // console.log(randomNumber);
     let nextCDF = monteCarloData[monteCarloData.length - 1].cdf;
     for (let i = monteCarloData.length; i >= 0; i--) {
       if (randomNumber >= monteCarloData[i]?.cdf && randomNumber <= nextCDF) {
-        // matchedData = monteCarloData[i];
         return monteCarloData[i];
-        // console.log(monteCarloData[i]);
       }
       nextCDF = monteCarloData[i]?.cdf;
     }
@@ -166,8 +181,16 @@ function App() {
           <Text style={{ marginTop: "2rem" }} fw="bold">
             Total Playing Time: {time} minutes
           </Text>
-
-          <TableData data={finalResults} />
+          <Text fw="light">Rounds: {totalRounds}</Text>
+          <Text fw="light">Black: Won {blackCounter} times</Text>
+          <Text fw="light">Green: Won {greenCounter} times</Text>
+        </div>
+        <div style={{ width: "75vw" }}>
+          <TableData
+            data={finalResults}
+            blackBet={blackBet}
+            greenBet={greenBet}
+          />
         </div>
       </div>
     </>
